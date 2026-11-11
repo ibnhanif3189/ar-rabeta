@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>আর-রাবেতা সদস্য পোর্টাল</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600&family=Noto+Serif+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F2F5F1; --surface: #FFFFFF; --ink: #16241F; --muted: #55665F;
+  --line: #C9D3CC; --accent: #0E6B52; --accent-ink: #FFFFFF; --danger: #B3402A; --focus: #0E6B52;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0F1A16; --surface: #16231E; --ink: #E7EEE9; --muted: #9BAEA5;
+    --line: #2A3B34; --accent: #3FB08C; --accent-ink: #06150F; --danger: #E0735C; --focus: #3FB08C;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6;
+  padding: env(safe-area-inset-top, 0px) 0 calc(84px + env(safe-area-inset-bottom, 0px));
+}
+h1, h2 { font-family: "Noto Serif Bengali", "Kalpurush", serif; line-height: 1.3; margin: 0; }
+.wrap { max-width: 520px; margin: 0 auto; padding: 0 16px; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.login { padding-top: 48px; }
+.login h1 { font-size: 2rem; margin-bottom: 4px; }
+.lead { color: var(--muted); margin: 0 0 24px; }
+.field { margin-bottom: 16px; }
+label { display: block; font-weight: 500; margin-bottom: 4px; }
+.hint { color: var(--muted); font-size: .88rem; margin-top: 3px; }
+input[type=text], input[type=tel], input[type=password] {
+  width: 100%; min-height: 52px; padding: 10px 14px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; font-size: 1.3rem; letter-spacing: .25em;
+  font-variant-numeric: tabular-nums;
+}
+.btn { width: 100%; min-height: 52px; border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 600; cursor: pointer; }
+.btn:disabled { opacity: .55; }
+.btn.alt { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.err { color: var(--danger); min-height: 1.5em; margin: 10px 0 0; }
+
+.top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0 10px; }
+.brand { font-family: "Noto Serif Bengali", serif; font-weight: 700; font-size: 1.4rem; }
+.link-btn { background: none; border: 0; color: var(--muted); text-decoration: underline; padding: 10px 4px; min-height: 44px; cursor: pointer; }
+
+.hello { margin: 6px 0 18px; }
+.hello h2 { font-size: 1.3rem; }
+.hello p { margin: 2px 0 0; color: var(--muted); }
+
+.ledger { margin: 8px 0 26px; }
+.row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 2px; border-bottom: 1px solid var(--line); }
+.row span:first-child { color: var(--muted); }
+.row .num { font-variant-numeric: tabular-nums; font-weight: 600; }
+.row.total { border-top: 4px double var(--ink); border-bottom: 0; margin-top: 4px; padding-top: 18px; }
+.row.total span:first-child { color: var(--ink); font-weight: 600; }
+.row.total .num { font-family: "Noto Serif Bengali", serif; font-size: 1.9rem; color: var(--accent); }
+
+h3 { font-family: "Noto Serif Bengali", serif; font-size: 1.1rem; margin: 0 0 8px; }
+.list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+.list li { padding: 14px 2px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; }
+.list .main { font-weight: 600; }
+.list .sub { color: var(--muted); font-size: .9rem; }
+.list .amt { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.list .rev .amt { color: var(--danger); }
+.empty { color: var(--muted); padding: 18px 2px; }
+.note { color: var(--muted); font-size: .88rem; margin-top: 18px; }
+.sec { margin-top: 28px; }
+nav.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: var(--surface);
+  border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 5;
+}
+nav.tabs button { flex: 1; min-height: 60px; border: 0; background: none; color: var(--muted); font-weight: 500; cursor: pointer; border-top: 3px solid transparent; }
+nav.tabs button[aria-current="page"] { color: var(--accent); border-top-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<main id="loginView" class="wrap login">
+  <h1>আর-রাবেতা</h1>
+  <p class="lead">সদস্য লগইন</p>
+  <form id="loginForm" novalidate>
+    <div class="field">
+      <label for="code">আপনার ৬ ডিজিটের কোড</label>
+      <input id="code" type="password" inputmode="numeric" autocomplete="off" maxlength="6">
+    </div>
+    <div class="field">
+      <label for="last4">ফোন নম্বরের শেষ ৪ ডিজিট</label>
+      <input id="last4" type="tel" inputmode="numeric" autocomplete="off" maxlength="4">
+      <p class="hint">সোসাইটিতে দেওয়া ফোন নম্বরের শেষ ৪ ডিজিট।</p>
+    </div>
+    <button class="btn" id="loginBtn" type="submit">লগইন করুন</button>
+    <p class="err" id="loginErr" role="alert"></p>
+  </form>
+</main>
+
+<div id="appView" class="wrap" hidden>
+  <header class="top">
+    <div class="brand">আর-রাবেতা</div>
+    <button class="link-btn" id="logoutBtn" type="button">লগআউট</button>
+  </header>
+
+  <section id="tab-me">
+  <div class="hello">
+    <h2 id="mName"></h2>
+    <p id="mSince"></p>
+  </div>
+
+  <div class="ledger">
+    <div class="row"><span>মাসিক সঞ্চয় (নির্ধারিত)</span><span class="num" id="mSavings"></span></div>
+    <div class="row total"><span>আপনার মোট জমা</span><span class="num" id="mTotal"></span></div>
+  </div>
+
+  <h3>জমার তালিকা</h3>
+  <ul class="list" id="depList"></ul>
+  <p class="note">সেশন ৩০ মিনিট পর নিজে থেকে শেষ হবে। হিসাবে কোনো ভুল দেখলে সোসাইটির অ্যাডমিনকে জানান।</p>
+  </section>
+
+  <section id="tab-soc" hidden>
+    <div class="hello">
+      <h2>সোসাইটির হিসাব</h2>
+      <p id="socMembers"></p>
+    </div>
+    <div class="ledger">
+      <div class="row"><span>মোট জমা</span><span class="num" id="socDep"></span></div>
+      <div class="row"><span>মোট খরচ</span><span class="num" id="socExp"></span></div>
+      <div class="row"><span>মোট বিনিয়োগ</span><span class="num" id="socInv"></span></div>
+      <div class="row total"><span>হাতে থাকা ব্যালেন্স</span><span class="num" id="socBal"></span></div>
+    </div>
+    <p class="err" id="socErr" role="alert"></p>
+
+    <h3>সদস্যভিত্তিক মোট জমা</h3>
+    <ul class="list" id="socMemList"></ul>
+
+    <h3 class="sec">সব জমার তালিকা</h3>
+    <ul class="list" id="socDepList"></ul>
+
+    <h3 class="sec">খরচের তালিকা</h3>
+    <ul class="list" id="socExpList"></ul>
+
+    <h3 class="sec">বিনিয়োগের তালিকা</h3>
+    <ul class="list" id="socInvList"></ul>
+  </section>
+
+  <nav class="tabs" aria-label="প্রধান মেনু">
+    <button type="button" data-tab="me" aria-current="page">আমার হিসাব</button>
+    <button type="button" data-tab="soc">সোসাইটি</button>
+  </nav>
+</div>
+
+<script>
+"use strict";
+var API = "https://ldwcbppzawnhrmlxajre.supabase.co/functions/v1/ar-rabeta-api";
+var token = null;
+var timer = null;
+
+function $(id) { return document.getElementById(id); }
+function en(s) { return String(s == null ? "" : s).replace(/[০-৯]/g, function (d) { return "০১২৩৪৫৬৭৮৯".indexOf(d); }); }
+var nf = new Intl.NumberFormat("bn-BD", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+function taka(n) { return "৳ " + nf.format(Number(n) || 0); }
+var monthFmt = new Intl.DateTimeFormat("bn-BD", { month: "long", year: "numeric", timeZone: "UTC" });
+var dayFmt = new Intl.DateTimeFormat("bn-BD", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+function el(tag, cls, text) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function logout(msg) {
+  var t = token;
+  token = null;
+  clearTimeout(timer);
+  if (t) {
+    fetch(API + "/member/logout", { method: "POST", headers: { "x-member-token": t } }).catch(function () {});
+  }
+  $("appView").hidden = true;
+  $("loginView").hidden = false;
+  $("code").value = "";
+  $("last4").value = "";
+  $("loginErr").textContent = msg || "";
+}
+$("logoutBtn").addEventListener("click", function () { logout(""); });
+
+$("loginForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  var code = en($("code").value).replace(/\D/g, "");
+  var last4 = en($("last4").value).replace(/\D/g, "");
+  $("loginErr").textContent = "";
+  if (code.length !== 6) { $("loginErr").textContent = "৬ ডিজিটের কোড দিন"; return; }
+  if (last4.length !== 4) { $("loginErr").textContent = "ফোনের শেষ ৪ ডিজিট দিন"; return; }
+  var btn = $("loginBtn");
+  btn.disabled = true;
+  try {
+    var r = await fetch(API + "/member/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: code, phone_last4: last4 })
+    });
+    var d = {};
+    try { d = await r.json(); } catch (je) { /* ignore */ }
+    if (!r.ok || !d.token) throw new Error(d.error || "লগইন করা যায়নি");
+    token = d.token;
+    var ms = Math.max(60000, new Date(d.expires_at).getTime() - Date.now() - 5000);
+    clearTimeout(timer);
+    timer = setTimeout(function () { logout("সেশন শেষ, আবার লগইন করুন"); }, ms);
+    await loadMe();
+  } catch (err) {
+    token = null;
+    $("loginErr").textContent = (err instanceof TypeError) ? "ইন্টারনেট সংযোগ দেখুন" : err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+async function loadMe() {
+  var r = await fetch(API + "/member/me", { headers: { "x-member-token": token } });
+  var d = {};
+  try { d = await r.json(); } catch (e) { /* ignore */ }
+  if (!r.ok || !d.success) {
+    if (r.status === 401) { logout("সেশন শেষ, আবার লগইন করুন"); return; }
+    throw new Error(d.error || "তথ্য আনা যায়নি");
+  }
+  $("mName").textContent = d.member.full_name;
+  $("mSince").textContent = "যোগদান: " + dayFmt.format(new Date(d.member.join_date + "T00:00:00Z"));
+  $("mSavings").textContent = taka(d.member.monthly_savings);
+  $("mTotal").textContent = taka(d.total_deposit);
+
+  var ul = $("depList");
+  ul.textContent = "";
+  if (!d.deposits.length) {
+    ul.appendChild(el("li", "empty", "এখনো কোনো জমা রেকর্ড হয়নি।"));
+  }
+  d.deposits.forEach(function (x) {
+    var li = el("li", x.is_reversal ? "rev" : "");
+    var left = el("div");
+    var label = x.month ? monthFmt.format(new Date(x.month + "T00:00:00Z")) : "জমা";
+    left.appendChild(el("div", "main", x.is_reversal ? label + " (সংশোধন)" : label));
+    left.appendChild(el("div", "sub", dayFmt.format(new Date(x.date + "T00:00:00Z")) + ", রসিদ " + x.receipt_no));
+    li.appendChild(left);
+    li.appendChild(el("div", "amt", (x.is_reversal ? "− " : "") + taka(x.amount)));
+    ul.appendChild(li);
+  });
+  $("loginView").hidden = true;
+  $("appView").hidden = false;
+  socLoaded = false;
+  switchTab("me");
+}
+
+var socLoaded = false;
+function switchTab(name) {
+  $("tab-me").hidden = name !== "me";
+  $("tab-soc").hidden = name !== "soc";
+  document.querySelectorAll("nav.tabs button").forEach(function (b) {
+    if (b.dataset.tab === name) b.setAttribute("aria-current", "page");
+    else b.removeAttribute("aria-current");
+  });
+  window.scrollTo(0, 0);
+  if (name === "soc" && !socLoaded) loadSociety();
+}
+document.querySelectorAll("nav.tabs button").forEach(function (b) {
+  b.addEventListener("click", function () { switchTab(b.dataset.tab); });
+});
+
+function fillList(id, rows, build, emptyText) {
+  var ul = $(id);
+  ul.textContent = "";
+  if (!rows.length) { ul.appendChild(el("li", "empty", emptyText)); return; }
+  rows.forEach(function (r) { ul.appendChild(build(r)); });
+}
+function twoLine(main, sub, amount, isRev) {
+  var li = el("li", isRev ? "rev" : "");
+  var left = el("div");
+  left.appendChild(el("div", "main", main));
+  if (sub) left.appendChild(el("div", "sub", sub));
+  li.appendChild(left);
+  li.appendChild(el("div", "amt", (isRev ? "− " : "") + taka(amount)));
+  return li;
+}
+function dayOf(s) { return dayFmt.format(new Date(s + "T00:00:00Z")); }
+
+async function loadSociety() {
+  $("socErr").textContent = "";
+  try {
+    var r = await fetch(API + "/member/society", { headers: { "x-member-token": token } });
+    var d = {};
+    try { d = await r.json(); } catch (je) { /* ignore */ }
+    if (r.status === 401) { logout("সেশন শেষ, আবার লগইন করুন"); return; }
+    if (!r.ok || !d.success) throw new Error(d.error || "তথ্য আনা যায়নি");
+
+    $("socDep").textContent = taka(d.totals.deposits);
+    $("socExp").textContent = taka(d.totals.expenses);
+    $("socInv").textContent = taka(d.totals.investments);
+    $("socBal").textContent = taka(d.totals.balance);
+    $("socMembers").textContent = "সক্রিয় স্থায়ী সদস্য: " + nf.format(d.totals.active_fixed_members) + " জন";
+
+    fillList("socMemList", d.members, function (m) {
+      return twoLine(m.name, m.type === "fixed" ? "স্থায়ী সদস্য" : "অন্যান্য", m.total_deposit, false);
+    }, "এখনো কোনো সদস্য নেই।");
+    fillList("socDepList", d.deposits, function (x) {
+      var label = x.month ? monthFmt.format(new Date(x.month + "T00:00:00Z")) : "জমা";
+      return twoLine(x.member + (x.is_reversal ? " (সংশোধন)" : ""), label + ", " + dayOf(x.date), x.amount, x.is_reversal);
+    }, "এখনো কোনো জমা রেকর্ড হয়নি।");
+    fillList("socExpList", d.expenses, function (x) {
+      return twoLine(x.category || "খরচ", dayOf(x.date) + (x.description ? ", " + x.description : ""), x.amount, x.is_reversal);
+    }, "এখনো কোনো খরচ রেকর্ড হয়নি।");
+    fillList("socInvList", d.investments, function (x) {
+      return twoLine(x.category || "বিনিয়োগ", dayOf(x.date) + (x.description ? ", " + x.description : ""), x.amount, x.is_reversal);
+    }, "এখনো কোনো বিনিয়োগ রেকর্ড হয়নি।");
+    socLoaded = true;
+  } catch (err) {
+    $("socErr").textContent = (err instanceof TypeError) ? "ইন্টারনেট সংযোগ দেখুন" : err.message;
+  }
+}
+</script>
+</body>
+</html>
