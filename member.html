@@ -28,13 +28,15 @@ body {
   margin: 0; background: var(--paper); color: var(--ink);
   font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, sans-serif;
   font-size: 16px; line-height: 1.6;
-  padding: env(safe-area-inset-top, 0px) 0 calc(84px + env(safe-area-inset-bottom, 0px));
+  padding: env(safe-area-inset-top, 0px) 0 calc(32px + env(safe-area-inset-bottom, 0px));
 }
-h1, h2 { font-family: "Noto Serif Bengali", "Kalpurush", serif; line-height: 1.3; margin: 0; }
+h1, h2, h3 { font-family: "Noto Serif Bengali", "Kalpurush", serif; line-height: 1.3; margin: 0; }
 .wrap { max-width: 520px; margin: 0 auto; padding: 0 16px; }
 button, input { font: inherit; color: inherit; }
+a { color: inherit; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
+/* login */
 .login { padding-top: 48px; }
 .login h1 { font-size: 2rem; margin-bottom: 4px; }
 .lead { color: var(--muted); margin: 0 0 24px; }
@@ -48,17 +50,26 @@ input[type=text], input[type=tel], input[type=password] {
 }
 .btn { width: 100%; min-height: 52px; border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 600; cursor: pointer; }
 .btn:disabled { opacity: .55; }
-.btn.alt { background: transparent; color: var(--ink); border: 1px solid var(--line); }
 .err { color: var(--danger); min-height: 1.5em; margin: 10px 0 0; }
 
+/* app shell */
 .top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0 10px; }
 .brand { font-family: "Noto Serif Bengali", serif; font-weight: 700; font-size: 1.4rem; }
 .link-btn { background: none; border: 0; color: var(--muted); text-decoration: underline; padding: 10px 4px; min-height: 44px; cursor: pointer; }
-
+.back { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); text-decoration: none; margin: 4px 0 6px; }
 .hello { margin: 6px 0 18px; }
 .hello h2 { font-size: 1.3rem; }
 .hello p { margin: 2px 0 0; color: var(--muted); }
+.page-title { font-size: 1.35rem; margin: 4px 0 16px; }
 
+/* home menu */
+.menu { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+.menu a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 4px; min-height: 68px; border-bottom: 1px solid var(--line); text-decoration: none; }
+.menu .t { font-weight: 600; font-size: 1.05rem; }
+.menu .s { color: var(--muted); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.menu .chev { color: var(--muted); font-size: 1.6rem; line-height: 1; }
+
+/* ledger + lists */
 .ledger { margin: 8px 0 26px; }
 .row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 2px; border-bottom: 1px solid var(--line); }
 .row span:first-child { color: var(--muted); }
@@ -66,8 +77,7 @@ input[type=text], input[type=tel], input[type=password] {
 .row.total { border-top: 4px double var(--ink); border-bottom: 0; margin-top: 4px; padding-top: 18px; }
 .row.total span:first-child { color: var(--ink); font-weight: 600; }
 .row.total .num { font-family: "Noto Serif Bengali", serif; font-size: 1.9rem; color: var(--accent); }
-
-h3 { font-family: "Noto Serif Bengali", serif; font-size: 1.1rem; margin: 0 0 8px; }
+.row.total .num.neg { color: var(--danger); }
 .list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
 .list li { padding: 14px 2px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; }
 .list .main { font-weight: 600; }
@@ -75,14 +85,7 @@ h3 { font-family: "Noto Serif Bengali", serif; font-size: 1.1rem; margin: 0 0 8p
 .list .amt { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
 .list .rev .amt { color: var(--danger); }
 .empty { color: var(--muted); padding: 18px 2px; }
-.note { color: var(--muted); font-size: .88rem; margin-top: 18px; }
-.sec { margin-top: 28px; }
-nav.tabs {
-  position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: var(--surface);
-  border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 5;
-}
-nav.tabs button { flex: 1; min-height: 60px; border: 0; background: none; color: var(--muted); font-weight: 500; cursor: pointer; border-top: 3px solid transparent; }
-nav.tabs button[aria-current="page"] { color: var(--accent); border-top-color: var(--accent); }
+.note { color: var(--muted); font-size: .88rem; margin-top: 22px; }
 </style>
 </head>
 <body>
@@ -111,57 +114,75 @@ nav.tabs button[aria-current="page"] { color: var(--accent); border-top-color: v
     <button class="link-btn" id="logoutBtn" type="button">লগআউট</button>
   </header>
 
-  <section id="tab-me">
-  <div class="hello">
-    <h2 id="mName"></h2>
-    <p id="mSince"></p>
-  </div>
-
-  <div class="ledger">
-    <div class="row"><span>মাসিক সঞ্চয় (নির্ধারিত)</span><span class="num" id="mSavings"></span></div>
-    <div class="row total"><span>আপনার মোট জমা</span><span class="num" id="mTotal"></span></div>
-  </div>
-
-  <h3>জমার তালিকা</h3>
-  <ul class="list" id="depList"></ul>
-  <p class="note">সেশন ৩০ মিনিট পর নিজে থেকে শেষ হবে। হিসাবে কোনো ভুল দেখলে সোসাইটির অ্যাডমিনকে জানান।</p>
+  <!-- মেনু -->
+  <section id="v-home" aria-label="মেনু">
+    <div class="hello">
+      <h2 id="hName"></h2>
+      <p id="hSince"></p>
+    </div>
+    <ul class="menu" id="menu"></ul>
+    <p class="note">সেশন ৩০ মিনিট পর নিজে থেকে শেষ হবে। হিসাবে কোনো ভুল দেখলে সোসাইটির অ্যাডমিনকে জানান।</p>
   </section>
 
-  <section id="tab-soc" hidden>
-    <div class="hello">
-      <h2>সোসাইটির হিসাব</h2>
-      <p id="socMembers"></p>
+  <!-- আমার হিসাব -->
+  <section id="v-me" hidden>
+    <a class="back" href="#home">‹ মেনুতে ফিরুন</a>
+    <h2 class="page-title">আমার হিসাব</h2>
+    <div class="ledger">
+      <div class="row"><span>মাসিক সঞ্চয় (নির্ধারিত)</span><span class="num" id="mSavings"></span></div>
+      <div class="row total"><span>আপনার মোট জমা</span><span class="num" id="mTotal"></span></div>
     </div>
+    <h3 style="margin-bottom:8px">আপনার জমার তালিকা</h3>
+    <ul class="list" id="depList"></ul>
+  </section>
+
+  <!-- সোসাইটির মোট হিসাব -->
+  <section id="v-summary" hidden>
+    <a class="back" href="#home">‹ মেনুতে ফিরুন</a>
+    <h2 class="page-title">সোসাইটির মোট হিসাব</h2>
     <div class="ledger">
       <div class="row"><span>মোট জমা</span><span class="num" id="socDep"></span></div>
       <div class="row"><span>মোট খরচ</span><span class="num" id="socExp"></span></div>
       <div class="row"><span>মোট বিনিয়োগ</span><span class="num" id="socInv"></span></div>
       <div class="row total"><span>হাতে থাকা ব্যালেন্স</span><span class="num" id="socBal"></span></div>
     </div>
-    <p class="err" id="socErr" role="alert"></p>
-
-    <h3>সদস্যভিত্তিক মোট জমা</h3>
-    <ul class="list" id="socMemList"></ul>
-
-    <h3 class="sec">সব জমার তালিকা</h3>
-    <ul class="list" id="socDepList"></ul>
-
-    <h3 class="sec">খরচের তালিকা</h3>
-    <ul class="list" id="socExpList"></ul>
-
-    <h3 class="sec">বিনিয়োগের তালিকা</h3>
-    <ul class="list" id="socInvList"></ul>
+    <p class="note" id="socMembers"></p>
+    <p class="note">ব্যালেন্স = জমা − খরচ − বিনিয়োগ</p>
   </section>
 
-  <nav class="tabs" aria-label="প্রধান মেনু">
-    <button type="button" data-tab="me" aria-current="page">আমার হিসাব</button>
-    <button type="button" data-tab="soc">সোসাইটি</button>
-  </nav>
+  <!-- সদস্য তালিকা -->
+  <section id="v-members" hidden>
+    <a class="back" href="#home">‹ মেনুতে ফিরুন</a>
+    <h2 class="page-title">সদস্য তালিকা</h2>
+    <ul class="list" id="socMemList"></ul>
+  </section>
+
+  <!-- সব জমার তালিকা -->
+  <section id="v-deposits" hidden>
+    <a class="back" href="#home">‹ মেনুতে ফিরুন</a>
+    <h2 class="page-title">সব জমার তালিকা</h2>
+    <ul class="list" id="socDepList"></ul>
+  </section>
+
+  <!-- খরচের তালিকা -->
+  <section id="v-expenses" hidden>
+    <a class="back" href="#home">‹ মেনুতে ফিরুন</a>
+    <h2 class="page-title">খরচের তালিকা</h2>
+    <ul class="list" id="socExpList"></ul>
+  </section>
+
+  <!-- বিনিয়োগের তালিকা -->
+  <section id="v-investments" hidden>
+    <a class="back" href="#home">‹ মেনুতে ফিরুন</a>
+    <h2 class="page-title">বিনিয়োগের তালিকা</h2>
+    <ul class="list" id="socInvList"></ul>
+  </section>
 </div>
 
 <script>
 "use strict";
 var API = "https://ldwcbppzawnhrmlxajre.supabase.co/functions/v1/ar-rabeta-api";
+var VIEWS = ["home", "me", "summary", "members", "deposits", "expenses", "investments"];
 var token = null;
 var timer = null;
 
@@ -171,6 +192,7 @@ var nf = new Intl.NumberFormat("bn-BD", { minimumFractionDigits: 0, maximumFract
 function taka(n) { return "৳ " + nf.format(Number(n) || 0); }
 var monthFmt = new Intl.DateTimeFormat("bn-BD", { month: "long", year: "numeric", timeZone: "UTC" });
 var dayFmt = new Intl.DateTimeFormat("bn-BD", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+function dayOf(s) { return dayFmt.format(new Date(s + "T00:00:00Z")); }
 function el(tag, cls, text) {
   var e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -178,6 +200,17 @@ function el(tag, cls, text) {
   return e;
 }
 
+/* ---------- navigation (hash = page name only) ---------- */
+function route() {
+  if (!token) return;
+  var name = (location.hash || "").replace("#", "");
+  if (VIEWS.indexOf(name) < 0) name = "home";
+  VIEWS.forEach(function (v) { $("v-" + v).hidden = (v !== name); });
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+
+/* ---------- login / logout ---------- */
 function logout(msg) {
   var t = token;
   token = null;
@@ -185,6 +218,7 @@ function logout(msg) {
   if (t) {
     fetch(API + "/member/logout", { method: "POST", headers: { "x-member-token": t } }).catch(function () {});
   }
+  try { history.replaceState(null, "", location.pathname); } catch (e) { /* ignore */ }
   $("appView").hidden = true;
   $("loginView").hidden = false;
   $("code").value = "";
@@ -215,8 +249,9 @@ $("loginForm").addEventListener("submit", async function (e) {
     var ms = Math.max(60000, new Date(d.expires_at).getTime() - Date.now() - 5000);
     clearTimeout(timer);
     timer = setTimeout(function () { logout("সেশন শেষ, আবার লগইন করুন"); }, ms);
-    await loadMe();
+    await loadAll();
   } catch (err) {
+    if (err.message === "__out") return;
     token = null;
     $("loginErr").textContent = (err instanceof TypeError) ? "ইন্টারনেট সংযোগ দেখুন" : err.message;
   } finally {
@@ -224,54 +259,24 @@ $("loginForm").addEventListener("submit", async function (e) {
   }
 });
 
-async function loadMe() {
-  var r = await fetch(API + "/member/me", { headers: { "x-member-token": token } });
+/* ---------- data ---------- */
+async function getJson(path) {
+  var r = await fetch(API + path, { headers: { "x-member-token": token } });
   var d = {};
   try { d = await r.json(); } catch (e) { /* ignore */ }
-  if (!r.ok || !d.success) {
-    if (r.status === 401) { logout("সেশন শেষ, আবার লগইন করুন"); return; }
-    throw new Error(d.error || "তথ্য আনা যায়নি");
-  }
-  $("mName").textContent = d.member.full_name;
-  $("mSince").textContent = "যোগদান: " + dayFmt.format(new Date(d.member.join_date + "T00:00:00Z"));
-  $("mSavings").textContent = taka(d.member.monthly_savings);
-  $("mTotal").textContent = taka(d.total_deposit);
+  if (r.status === 401) { logout("সেশন শেষ, আবার লগইন করুন"); throw new Error("__out"); }
+  if (!r.ok || !d.success) throw new Error(d.error || "তথ্য আনা যায়নি");
+  return d;
+}
 
-  var ul = $("depList");
-  ul.textContent = "";
-  if (!d.deposits.length) {
-    ul.appendChild(el("li", "empty", "এখনো কোনো জমা রেকর্ড হয়নি।"));
-  }
-  d.deposits.forEach(function (x) {
-    var li = el("li", x.is_reversal ? "rev" : "");
-    var left = el("div");
-    var label = x.month ? monthFmt.format(new Date(x.month + "T00:00:00Z")) : "জমা";
-    left.appendChild(el("div", "main", x.is_reversal ? label + " (সংশোধন)" : label));
-    left.appendChild(el("div", "sub", dayFmt.format(new Date(x.date + "T00:00:00Z")) + ", রসিদ " + x.receipt_no));
-    li.appendChild(left);
-    li.appendChild(el("div", "amt", (x.is_reversal ? "− " : "") + taka(x.amount)));
-    ul.appendChild(li);
-  });
+async function loadAll() {
+  var res = await Promise.all([getJson("/member/me"), getJson("/member/society")]);
+  render(res[0], res[1]);
   $("loginView").hidden = true;
   $("appView").hidden = false;
-  socLoaded = false;
-  switchTab("me");
+  try { history.replaceState(null, "", location.pathname + "#home"); } catch (e) { /* ignore */ }
+  route();
 }
-
-var socLoaded = false;
-function switchTab(name) {
-  $("tab-me").hidden = name !== "me";
-  $("tab-soc").hidden = name !== "soc";
-  document.querySelectorAll("nav.tabs button").forEach(function (b) {
-    if (b.dataset.tab === name) b.setAttribute("aria-current", "page");
-    else b.removeAttribute("aria-current");
-  });
-  window.scrollTo(0, 0);
-  if (name === "soc" && !socLoaded) loadSociety();
-}
-document.querySelectorAll("nav.tabs button").forEach(function (b) {
-  b.addEventListener("click", function () { switchTab(b.dataset.tab); });
-});
 
 function fillList(id, rows, build, emptyText) {
   var ul = $(id);
@@ -288,40 +293,64 @@ function twoLine(main, sub, amount, isRev) {
   li.appendChild(el("div", "amt", (isRev ? "− " : "") + taka(amount)));
   return li;
 }
-function dayOf(s) { return dayFmt.format(new Date(s + "T00:00:00Z")); }
 
-async function loadSociety() {
-  $("socErr").textContent = "";
-  try {
-    var r = await fetch(API + "/member/society", { headers: { "x-member-token": token } });
-    var d = {};
-    try { d = await r.json(); } catch (je) { /* ignore */ }
-    if (r.status === 401) { logout("সেশন শেষ, আবার লগইন করুন"); return; }
-    if (!r.ok || !d.success) throw new Error(d.error || "তথ্য আনা যায়নি");
+function render(me, soc) {
+  $("hName").textContent = me.member.full_name;
+  $("hSince").textContent = "যোগদান: " + dayOf(me.member.join_date);
 
-    $("socDep").textContent = taka(d.totals.deposits);
-    $("socExp").textContent = taka(d.totals.expenses);
-    $("socInv").textContent = taka(d.totals.investments);
-    $("socBal").textContent = taka(d.totals.balance);
-    $("socMembers").textContent = "সক্রিয় স্থায়ী সদস্য: " + nf.format(d.totals.active_fixed_members) + " জন";
+  var items = [
+    ["me", "আমার হিসাব", "আপনার মোট জমা " + taka(me.total_deposit)],
+    ["summary", "সোসাইটির মোট হিসাব", "ব্যালেন্স " + taka(soc.totals.balance)],
+    ["members", "সদস্য তালিকা", nf.format(soc.members.length) + " জন"],
+    ["deposits", "সব জমার তালিকা", "মোট জমা " + taka(soc.totals.deposits)],
+    ["expenses", "খরচের তালিকা", "মোট খরচ " + taka(soc.totals.expenses)],
+    ["investments", "বিনিয়োগের তালিকা", "মোট বিনিয়োগ " + taka(soc.totals.investments)]
+  ];
+  var menu = $("menu");
+  menu.textContent = "";
+  items.forEach(function (it) {
+    var li = el("li");
+    var a = el("a");
+    a.href = "#" + it[0];
+    var box = el("div");
+    box.appendChild(el("div", "t", it[1]));
+    box.appendChild(el("div", "s", it[2]));
+    a.appendChild(box);
+    a.appendChild(el("span", "chev", "›"));
+    li.appendChild(a);
+    menu.appendChild(li);
+  });
 
-    fillList("socMemList", d.members, function (m) {
-      return twoLine(m.name, m.type === "fixed" ? "স্থায়ী সদস্য" : "অন্যান্য", m.total_deposit, false);
-    }, "এখনো কোনো সদস্য নেই।");
-    fillList("socDepList", d.deposits, function (x) {
-      var label = x.month ? monthFmt.format(new Date(x.month + "T00:00:00Z")) : "জমা";
-      return twoLine(x.member + (x.is_reversal ? " (সংশোধন)" : ""), label + ", " + dayOf(x.date), x.amount, x.is_reversal);
-    }, "এখনো কোনো জমা রেকর্ড হয়নি।");
-    fillList("socExpList", d.expenses, function (x) {
-      return twoLine(x.category || "খরচ", dayOf(x.date) + (x.description ? ", " + x.description : ""), x.amount, x.is_reversal);
-    }, "এখনো কোনো খরচ রেকর্ড হয়নি।");
-    fillList("socInvList", d.investments, function (x) {
-      return twoLine(x.category || "বিনিয়োগ", dayOf(x.date) + (x.description ? ", " + x.description : ""), x.amount, x.is_reversal);
-    }, "এখনো কোনো বিনিয়োগ রেকর্ড হয়নি।");
-    socLoaded = true;
-  } catch (err) {
-    $("socErr").textContent = (err instanceof TypeError) ? "ইন্টারনেট সংযোগ দেখুন" : err.message;
-  }
+  // আমার হিসাব
+  $("mSavings").textContent = taka(me.member.monthly_savings);
+  $("mTotal").textContent = taka(me.total_deposit);
+  fillList("depList", me.deposits, function (x) {
+    var label = x.month ? monthFmt.format(new Date(x.month + "T00:00:00Z")) : "জমা";
+    return twoLine(x.is_reversal ? label + " (সংশোধন)" : label, dayOf(x.date) + ", রসিদ " + x.receipt_no, x.amount, x.is_reversal);
+  }, "এখনো কোনো জমা রেকর্ড হয়নি।");
+
+  // সোসাইটির মোট হিসাব
+  $("socDep").textContent = taka(soc.totals.deposits);
+  $("socExp").textContent = taka(soc.totals.expenses);
+  $("socInv").textContent = taka(soc.totals.investments);
+  var bal = $("socBal");
+  bal.textContent = taka(soc.totals.balance);
+  bal.classList.toggle("neg", Number(soc.totals.balance) < 0);
+  $("socMembers").textContent = "সক্রিয় স্থায়ী সদস্য: " + nf.format(soc.totals.active_fixed_members) + " জন";
+
+  fillList("socMemList", soc.members, function (m) {
+    return twoLine(m.name, m.type === "fixed" ? "স্থায়ী সদস্য" : "অন্যান্য", m.total_deposit, false);
+  }, "এখনো কোনো সদস্য নেই।");
+  fillList("socDepList", soc.deposits, function (x) {
+    var label = x.month ? monthFmt.format(new Date(x.month + "T00:00:00Z")) : "জমা";
+    return twoLine(x.member + (x.is_reversal ? " (সংশোধন)" : ""), label + ", " + dayOf(x.date), x.amount, x.is_reversal);
+  }, "এখনো কোনো জমা রেকর্ড হয়নি।");
+  fillList("socExpList", soc.expenses, function (x) {
+    return twoLine(x.category || "খরচ", dayOf(x.date) + (x.description ? ", " + x.description : ""), x.amount, x.is_reversal);
+  }, "এখনো কোনো খরচ রেকর্ড হয়নি।");
+  fillList("socInvList", soc.investments, function (x) {
+    return twoLine(x.category || "বিনিয়োগ", dayOf(x.date) + (x.description ? ", " + x.description : ""), x.amount, x.is_reversal);
+  }, "এখনো কোনো বিনিয়োগ রেকর্ড হয়নি।");
 }
 </script>
 </body>
