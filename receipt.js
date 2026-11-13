@@ -101,6 +101,11 @@
       addRow(tb, "Investor Address", r.investor_address);
       addRow(tb, "Investor NID", r.investor_nid);
     }
+    
+    // INV নম্বর
+    if (r.investment_no) {
+      addRow(tb, "Investment No", r.investment_no);
+    }
 
     if (r.periods && r.periods.length > 0) {
       var trP = el("tr");
