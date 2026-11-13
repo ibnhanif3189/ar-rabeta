@@ -116,7 +116,7 @@ nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; backgro
           </div>
         </div>
 
-        <!-- বিনিয়োগের বিস্তারিত তথ্য -->
+        <!-- বিনিয়োগের বিস্তারিত তথ্য -->
         <div id="investmentDetails" hidden>
           <div class="field"><label for="tInvestorName">বিনিয়োগকারীর নাম</label><input id="tInvestorName" type="text" placeholder="যিনি টাকা নিচ্ছেন"></div>
           <div class="field"><label for="tInvestorPhone">ফোন নম্বর</label><input id="tInvestorPhone" type="tel"></div>
@@ -124,16 +124,20 @@ nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; backgro
           <div class="field"><label for="tInvestorNid">NID নম্বর</label><input id="tInvestorNid" type="text"></div>
         </div>
 
-        <!-- বিনিয়োগ ফেরতের তথ্য -->
+        <!-- বিনিয়োগ ফেরতের তথ্য -->
         <div id="returnDetails" hidden>
-          <div class="field"><label for="tRefInvNo">বিনিয়োগ নম্বর (INV-XXXX)</label><input id="tRefInvNo" type="text" placeholder="যেমন: INV-0001"></div>
+          <div class="field"><label for="tRefInvNo">বিনিয়োগ নম্বর (INV-XXXX)</label><input id="tRefInvNo" type="text" placeholder="যেমন: INV-0001"></div>
+          <div class="field"><label for="tReceiver">রিসিভার (কে টাকা নিচ্ছে)</label><input id="tReceiver" type="text" placeholder="রিসিভারের নাম"></div>
+          <div class="field"><label for="tReturnAmount">রিটার্ন অ্যামাউন্ট (৳)</label><input id="tReturnAmount" type="number" placeholder="0"></div>
+          <div class="field"><label for="tReturnDesc">বিবরণ</label><textarea id="tReturnDesc" placeholder="ফেরতের কারণ বা বিবরণ"></textarea></div>
         </div>
 
         <div class="field" id="fCategory" hidden><label for="tCategory" id="tCategoryLbl">খাত / বিবরণ</label><input id="tCategory" type="text" maxlength="80"></div>
         
-        <div class="field"><label for="tAmount">মোট টাকার পরিমাণ</label><input id="tAmount" type="text" inputmode="decimal" autocomplete="off"></div>
+        <div class="field" id="fStandardAmount"><label for="tAmount">মোট টাকার পরিমাণ</label><input id="tAmount" type="text" inputmode="decimal" autocomplete="off"></div>
+        
         <div class="field"><label for="tDate">তারিখ</label><input id="tDate" type="date"></div>
-        <div class="field"><label for="tDesc">মূল বিবরণ</label><textarea id="tDesc" maxlength="500"></textarea></div>
+        <div class="field" id="fStandardDesc"><label for="tDesc">মূল বিবরণ</label><textarea id="tDesc" maxlength="500"></textarea></div>
         <div class="field"><label for="tRef">রেফারেন্স</label><input id="tRef" type="text" maxlength="120"></div>
         <button class="btn" id="txBtn" type="submit">লেনদেন সংরক্ষণ করুন</button>
         <p class="err" id="txErr" role="alert"></p>
@@ -312,24 +316,32 @@ $("memberForm").addEventListener("submit", async function (e) {
 function syncTxFields() {
   var t = document.querySelector('input[name="ttype"]:checked').value;
   var dep = t === "deposit";
-  $("fMember").hidden = !(dep || t === "investment" || t === "investment_return"); 
-  $("fDepositType").hidden = !dep; 
-  $("fCategory").hidden = dep;
   
-  if (dep) { toggleDepositMode(); $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true; $("investmentDetails").hidden = true; $("returnDetails").hidden = true; }
-  else if (t === "investment") {
-    $("investmentDetails").hidden = false; $("returnDetails").hidden = true; $("tCategoryLbl").textContent = "বিনিয়োগের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
-  } else if (t === "investment_return") {
-    $("investmentDetails").hidden = true; $("returnDetails").hidden = false; $("tCategoryLbl").textContent = "কোন বিনিয়োগ থেকে ফেরত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
-  } else if (t === "expense") {
-    $("investmentDetails").hidden = true; $("returnDetails").hidden = true; $("tCategoryLbl").textContent = "খরচের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
-  } else if (t === "other_income") {
-    $("investmentDetails").hidden = true; $("returnDetails").hidden = true; $("tCategoryLbl").textContent = "আয়ের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
-  }
+  // Hide/Show fields based on type
+  $("fMember").hidden = !(dep || t === "investment");
+  $("fDepositType").hidden = !dep;
+  $("singleMonthBox").hidden = !dep || (document.querySelector('input[name="dtype"]:checked').value !== "single");
+  $("multiMonthBox").hidden = !dep || (document.querySelector('input[name="dtype"]:checked').value !== "multi");
+  
+  $("investmentDetails").hidden = (t !== "investment");
+  $("returnDetails").hidden = (t !== "investment_return");
+  
+  // Standard fields visibility
+  var isReturn = (t === "investment_return");
+  $("fCategory").hidden = dep || isReturn;
+  $("fStandardAmount").hidden = isReturn;
+  $("fStandardDesc").hidden = isReturn;
+
+  // Labels
+  if (t === "expense") { $("tCategoryLbl").textContent = "খরচের খাত"; }
+  else if (t === "investment") { $("tCategoryLbl").textContent = "বিনিয়োগের খাত"; }
+  else if (t === "other_income") { $("tCategoryLbl").textContent = "আয়ের খাত"; }
 }
+
 function toggleDepositMode() {
   var mode = document.querySelector('input[name="dtype"]:checked').value;
-  $("singleMonthBox").hidden = (mode !== "single"); $("multiMonthBox").hidden = (mode !== "multi");
+  $("singleMonthBox").hidden = (mode !== "single");
+  $("multiMonthBox").hidden = (mode !== "multi");
   if (mode === "multi" && $("multiMonthTable").querySelector("tbody").children.length === 0) { addMonthRow(); }
   calcTotal();
 }
@@ -347,6 +359,7 @@ function calcTotal() {
     $("tAmount").value = total; $("multiTotal").textContent = taka(total);
   } else { $("tAmount").value = ""; $("tAmount").readOnly = false; }
 }
+
 document.querySelectorAll('input[name="ttype"]').forEach(function (r) { r.addEventListener("change", syncTxFields); });
 document.querySelectorAll('input[name="dtype"]').forEach(function (r) { r.addEventListener("change", toggleDepositMode); });
 $("addMonthBtn").addEventListener("click", addMonthRow);
@@ -355,12 +368,16 @@ syncTxFields();
 $("txForm").addEventListener("submit", async function (e) {
   e.preventDefault(); var btn = $("txBtn"); $("txErr").textContent = ""; $("txResult").hidden = true;
   var type = document.querySelector('input[name="ttype"]:checked').value;
-  var body = { type: type, amount: en($("tAmount").value).trim(), date: $("tDate").value, description: $("tDesc").value.trim(), reference: $("tRef").value.trim() };
+  
+  var body = { type: type, date: $("tDate").value };
   
   if (type === "deposit") {
     body.member_id = $("tMember").value;
+    body.description = $("tDesc").value.trim();
+    body.reference = $("tRef").value.trim();
     var mode = document.querySelector('input[name="dtype"]:checked').value;
     if (mode === "single") {
+      body.amount = en($("tAmount").value).trim();
       body.contribution_month = $("tMonth").value;
       if (!body.contribution_month) { $("txErr").textContent = "কোন মাসের জমা তা দিন"; return; }
     } else {
@@ -370,23 +387,36 @@ $("txForm").addEventListener("submit", async function (e) {
         if (m && a) body.periods.push({ month: m, amount: parseFloat(a) });
       });
       if (!body.periods.length) { $("txErr").textContent = "মাস এবং টাকার পরিমাণ দিন"; return; }
+      body.amount = $("tAmount").value;
     }
   } else if (type === "investment") {
     body.member_id = $("tMember").value;
+    body.amount = en($("tAmount").value).trim();
     body.category = $("tCategory").value.trim();
+    body.description = $("tDesc").value.trim();
+    body.reference = $("tRef").value.trim();
     body.investor_name = $("tInvestorName").value.trim();
     body.investor_phone = $("tInvestorPhone").value.trim();
     body.investor_address = $("tInvestorAddress").value.trim();
     body.investor_nid = $("tInvestorNid").value.trim();
   } else if (type === "investment_return") {
-    body.member_id = $("tMember").value;
-    body.category = $("tCategory").value.trim();
+    body.amount = en($("tReturnAmount").value).trim();
     body.ref_inv_no = $("tRefInvNo").value.trim();
+    body.receiver = $("tReceiver").value.trim();
+    body.description = $("tReturnDesc").value.trim();
+    body.category = "Investment Return";
+    if (!body.ref_inv_no) { $("txErr").textContent = "বিনিয়োগ নম্বর দিন"; return; }
   } else {
+    body.amount = en($("tAmount").value).trim();
     body.category = $("tCategory").value.trim();
+    body.description = $("tDesc").value.trim();
+    body.reference = $("tRef").value.trim();
     if (body.category.length < 2) { $("txErr").textContent = "খাত বা ধরন লিখুন"; return; }
   }
   
+  if (!body.amount || isNaN(body.amount) || Number(body.amount) <= 0) { $("txErr").textContent = "সঠিক টাকার পরিমাণ দিন"; return; }
+  if (!body.date) { $("txErr").textContent = "তারিখ দিন"; return; }
+
   btn.disabled = true;
   try {
     var d = await api("/admin/transactions", { method: "POST", body: body });
