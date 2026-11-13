@@ -118,10 +118,15 @@ nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; backgro
 
         <!-- বিনিয়োগের বিস্তারিত তথ্য -->
         <div id="investmentDetails" hidden>
-          <div class="field"><label for="tInvestorName">বিনিয়োগকারীর নাম</label><input id="tInvestorName" type="text" placeholder="যিনি টাকা নিচ্ছেন"></div>
+          <div class="field"><label for="tInvestorName">বিনিয়োগকারীর নাম</label><input id="tInvestorName" type="text" placeholder="যিনি টাকা নিচ্ছেন"></div>
           <div class="field"><label for="tInvestorPhone">ফোন নম্বর</label><input id="tInvestorPhone" type="tel"></div>
           <div class="field"><label for="tInvestorAddress">ঠিকানা</label><input id="tInvestorAddress" type="text"></div>
           <div class="field"><label for="tInvestorNid">NID নম্বর</label><input id="tInvestorNid" type="text"></div>
+        </div>
+
+        <!-- বিনিয়োগ ফেরতের তথ্য -->
+        <div id="returnDetails" hidden>
+          <div class="field"><label for="tRefInvNo">বিনিয়োগ নম্বর (INV-XXXX)</label><input id="tRefInvNo" type="text" placeholder="যেমন: INV-0001"></div>
         </div>
 
         <div class="field" id="fCategory" hidden><label for="tCategory" id="tCategoryLbl">খাত / বিবরণ</label><input id="tCategory" type="text" maxlength="80"></div>
@@ -311,15 +316,15 @@ function syncTxFields() {
   $("fDepositType").hidden = !dep; 
   $("fCategory").hidden = dep;
   
-  if (dep) { toggleDepositMode(); $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true; $("investmentDetails").hidden = true; }
+  if (dep) { toggleDepositMode(); $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true; $("investmentDetails").hidden = true; $("returnDetails").hidden = true; }
   else if (t === "investment") {
-    $("investmentDetails").hidden = false; $("tCategoryLbl").textContent = "বিনিয়োগের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
+    $("investmentDetails").hidden = false; $("returnDetails").hidden = true; $("tCategoryLbl").textContent = "বিনিয়োগের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
   } else if (t === "investment_return") {
-    $("investmentDetails").hidden = true; $("tCategoryLbl").textContent = "কোন বিনিয়োগ থেকে ফেরত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
+    $("investmentDetails").hidden = true; $("returnDetails").hidden = false; $("tCategoryLbl").textContent = "কোন বিনিয়োগ থেকে ফেরত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
   } else if (t === "expense") {
-    $("investmentDetails").hidden = true; $("tCategoryLbl").textContent = "খরচের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
+    $("investmentDetails").hidden = true; $("returnDetails").hidden = true; $("tCategoryLbl").textContent = "খরচের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
   } else if (t === "other_income") {
-    $("investmentDetails").hidden = true; $("tCategoryLbl").textContent = "আয়ের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
+    $("investmentDetails").hidden = true; $("returnDetails").hidden = true; $("tCategoryLbl").textContent = "আয়ের খাত"; $("singleMonthBox").hidden = true; $("multiMonthBox").hidden = true;
   }
 }
 function toggleDepositMode() {
@@ -376,6 +381,7 @@ $("txForm").addEventListener("submit", async function (e) {
   } else if (type === "investment_return") {
     body.member_id = $("tMember").value;
     body.category = $("tCategory").value.trim();
+    body.ref_inv_no = $("tRefInvNo").value.trim();
   } else {
     body.category = $("tCategory").value.trim();
     if (body.category.length < 2) { $("txErr").textContent = "খাত বা ধরন লিখুন"; return; }
@@ -396,16 +402,28 @@ function renderTx(rows) {
   rows.forEach(function (r) {
     var li = el("li", "tx" + (r.is_reversal ? " rev" : ""));
     var left = el("div"); left.style.flex = "1"; var who = r.member_name || r.category || "";
-    left.appendChild(el("div", "name", (TYPE_BN[r.type] || r.type) + (who ? ": " + who : "")));
+    left.appendChild(el("div", "name", (TYPE_BN[r.type] || r.type) + (who ? ": " + who : "") + (r.investment_no ? " [" + r.investment_no + "]" : "")));
     left.appendChild(el("div", "sub", r.date + ", " + taka(r.amount) + ", " + r.receipt_no)); li.appendChild(left);
     var actions = el("div", "actions");
+    
     var bView = el("button", "mini", "রসিদ"); bView.type = "button"; bView.addEventListener("click", function () { openReceipt(r.receipt_no); }); actions.appendChild(bView);
+    
+    var bDel = el("button", "mini danger", "ডিলিট"); bDel.type = "button"; bDel.addEventListener("click", function () { deleteTransaction(r.id); }); actions.appendChild(bDel);
+
     li.appendChild(actions); ul.appendChild(li);
   });
 }
 
+async function deleteTransaction(id) {
+  if (!confirm("আপনি কি নিশ্চিত এই লেনদেনটি মুছে ফেলতে চান?")) return;
+  try {
+    await api("/admin/transactions/" + id, { method: "DELETE" });
+    toast("লেনদেন মুছে ফেলা হয়েছে"); loadAll(); 
+  } catch (e) { toast(e.message, true); }
+}
+
 async function openReceipt(no) {
-  if (!window.ARReceipt) { toast("receipt.js ফাইলটি লোড হয়নি", true); return; }
+  if (!window.ARReceipt) { toast("receipt.js ফাইলটি লোড হয়নি", true); return; }
   try { var d = await api("/admin/receipt?no=" + encodeURIComponent(no)); window.ARReceipt.show(d.receipt); } 
   catch (e) { if (token) toast(e.message, true); }
 }
@@ -416,7 +434,6 @@ $("copyCode").addEventListener("click", async function () {
   catch (e) { toast("কপি হয়নি, হাতে লিখে নিন", true); }
 });
 </script>
-<!-- রসিদের ফাইল লোড করা হলো -->
 <script src="receipt.js"></script>
 </body>
 </html>
