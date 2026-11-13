@@ -75,7 +75,6 @@
     meta.appendChild(el("span", null, "Date: " + dayFmt.format(new Date(r.date + "T00:00:00Z"))));
     paper.appendChild(meta);
 
-    // সদস্যের বিস্তারিত তথ্য
     if (r.member) {
       var mInfo = el("div", "arr-member-info");
       if (r.member.photo) {
@@ -93,26 +92,53 @@
     var tb = el("tbody");
     addRow(tb, "Type", t.label);
     
-    // বিনিয়োগকারীর তথ্য (যদি থাকে)
     if (r.investor_name) {
-      // যদি বিনিয়োগ ফেরত হয়, তবে "Receiver Name" দেখাবে, অন্যথায় "Investor Name"
       var nameLabel = (r.type === "investment_return") ? "Receiver Name" : "Investor Name";
       addRow(tb, nameLabel, r.investor_name);
-      
       if (r.investor_phone) addRow(tb, "Phone", r.investor_phone);
       if (r.investor_address) addRow(tb, "Address", r.investor_address);
       if (r.investor_nid) addRow(tb, "NID", r.investor_nid);
     }
     
-    // INV নম্বর
     if (r.investment_no) {
       addRow(tb, "Investment No", r.investment_no);
     }
 
-    if (r.periods && r.periods.length > 0) {
+    // বিনিয়োগ ফেরতের হিসাব
+    if (r.type === "investment_return") {
+      var invAmt = r.linked_investment_amount || 0;
+      var retAmt = r.amount || 0;
+      var plAmt = retAmt - invAmt;
+      
+      var calcTable = el("table", "arr-table");
+      var tr1 = el("tr");
+      tr1.appendChild(el("td", null, "Investment Amount"));
+      tr1.appendChild(el("td", null, "BDT " + nf.format(invAmt)));
+      calcTable.appendChild(tr1);
+      
+      var tr2 = el("tr");
+      tr2.appendChild(el("td", null, "Return Money"));
+      tr2.appendChild(el("td", null, "BDT " + nf.format(retAmt)));
+      calcTable.appendChild(tr2);
+      
+      var tr3 = el("tr");
+      tr3.appendChild(el("td", null, plAmt >= 0 ? "Profit Amount" : "Loss Amount"));
+      tr3.appendChild(el("td", null, "BDT " + nf.format(Math.abs(plAmt))));
+      tr3.style.color = plAmt >= 0 ? "green" : "red";
+      calcTable.appendChild(tr3);
+
       var trP = el("tr");
-      trP.appendChild(el("th", null, "Months & Amounts"));
+      trP.appendChild(el("th", null, "Calculation"));
       var tdP = el("td");
+      tdP.appendChild(calcTable);
+      trP.appendChild(tdP);
+      tb.appendChild(trP);
+    }
+
+    if (r.periods && r.periods.length > 0) {
+      var trP2 = el("tr");
+      trP2.appendChild(el("th", null, "Months & Amounts"));
+      var tdP2 = el("td");
       var tTable = el("table", "arr-table");
       r.periods.forEach(function(p) {
         var pTr = el("tr");
@@ -120,9 +146,9 @@
         pTr.appendChild(el("td", null, nf.format(p.amount)));
         tTable.appendChild(pTr);
       });
-      tdP.appendChild(tTable);
-      trP.appendChild(tdP);
-      tb.appendChild(trP);
+      tdP2.appendChild(tTable);
+      trP2.appendChild(tdP2);
+      tb.appendChild(trP2);
     } else if (r.month) {
       addRow(tb, "Month", monthFmt.format(new Date(r.month + "T00:00:00Z")));
     }
