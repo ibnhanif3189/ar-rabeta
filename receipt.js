@@ -1,4 +1,4 @@
-/* AR-RABETA receipt viewer. Used by admin.html and member.html. */
+/* AR-RABETA receipt viewer. */
 (function () {
   "use strict";
   var ROOT_ID = "arr-receipt-root";
@@ -11,9 +11,12 @@
     "#arr-receipt-root .arr-print{background:#0E6B52;color:#fff}",
     "#arr-receipt-root .arr-close{background:#fff;color:#16241F}",
     "#arr-receipt-root .arr-paper{max-width:560px;margin:0 auto;background:#fff;color:#16241F;padding:26px 22px;border-radius:6px;font-family:system-ui, sans-serif;font-size:14px;line-height:1.5}",
-    "#arr-receipt-root .arr-head{text-align:center;border-bottom:2px solid #0E6B52;padding-bottom:12px;margin-bottom:14px}",
+    "#arr-receipt-root .arr-head{text-align:center;border-bottom:2px solid #0E6B52;padding-bottom:12px;margin-bottom:14px; position:relative}",
+    "#arr-receipt-root .arr-logo{max-width:100px;max-height:80px;margin-bottom:8px;border-radius:8px}",
     "#arr-receipt-root .arr-title{font-weight:700;font-size:1.3rem;margin:4px 0 0;text-transform:uppercase}",
     "#arr-receipt-root .arr-meta{display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.9rem}",
+    "#arr-receipt-root .arr-member-info{display:flex;gap:12px;align-items:center;margin-bottom:12px;background:#f9f9f9;padding:10px;border-radius:6px}",
+    "#arr-receipt-root .arr-member-pic{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #0E6B52}",
     "#arr-receipt-root .arr-rows{width:100%;border-collapse:collapse;margin-top:10px}",
     "#arr-receipt-root .arr-rows th,#arr-receipt-root .arr-rows td{text-align:left;padding:8px 4px;border-bottom:1px solid #D5DDD8}",
     "#arr-receipt-root .arr-rows th{width:35%;color:#55665F}",
@@ -35,10 +38,13 @@
   var nf = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2 });
   var dayFmt = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
   var monthFmt = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+  
   var TYPES = {
     deposit: { title: "Deposit Receipt", label: "Member Deposit" },
     expense: { title: "Expense Voucher", label: "Expense" },
-    investment: { title: "Investment Voucher", label: "Investment" }
+    investment: { title: "Investment Voucher", label: "Investment" },
+    investment_return: { title: "Return Voucher", label: "Investment Return" },
+    other_income: { title: "Income Voucher", label: "Other Income" }
   };
 
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -59,7 +65,8 @@
     var paper = el("div", "arr-paper");
     
     var head = el("div", "arr-head");
-    head.innerHTML = `<img src="https://ibnhanif3189.github.io/ar-rabeta/logo.jpg" style="width:120px;margin-bottom:8px;display:none;" alt="Logo">`; // Fallback if no logo
+    // আপনার লোগো এখানে যুক্ত করা হলো (রিপোজিটরিতে logo.jpg থাকলে দেখাবে)
+    head.innerHTML = `<img src="logo.jpg" class="arr-logo" onerror="this.style.display='none'">`;
     head.appendChild(el("div", "arr-title", "AR-RABETA"));
     head.appendChild(el("div", null, t.title));
     paper.appendChild(head);
@@ -69,14 +76,32 @@
     meta.appendChild(el("span", null, "Date: " + dayFmt.format(new Date(r.date + "T00:00:00Z"))));
     paper.appendChild(meta);
 
+    // সদস্যের বিস্তারিত তথ্য
+    if (r.member) {
+      var mInfo = el("div", "arr-member-info");
+      if (r.member.photo) {
+        var pic = el("img", "arr-member-pic"); pic.src = r.member.photo; mInfo.appendChild(pic);
+      }
+      var mText = el("div");
+      mText.appendChild(el("div", null, "Member: " + r.member.name + " (" + r.member.no + ")"));
+      if (r.member.phone) mText.appendChild(el("div", null, "Phone: " + r.member.phone));
+      if (r.member.address) mText.appendChild(el("div", null, "Address: " + r.member.address));
+      mInfo.appendChild(mText);
+      paper.appendChild(mInfo);
+    }
+
     var table = el("table", "arr-rows");
     var tb = el("tbody");
     addRow(tb, "Type", t.label);
-    if (r.member_name) {
-      addRow(tb, "Member Name", r.member_name);
-      addRow(tb, "Member ID", r.member_no);
-    }
     
+    // বিনিয়োগকারীর তথ্য (যদি থাকে)
+    if (r.investor_name) {
+      addRow(tb, "Investor Name", r.investor_name);
+      addRow(tb, "Investor Phone", r.investor_phone);
+      addRow(tb, "Investor Address", r.investor_address);
+      addRow(tb, "Investor NID", r.investor_nid);
+    }
+
     if (r.periods && r.periods.length > 0) {
       var trP = el("tr");
       trP.appendChild(el("th", null, "Months & Amounts"));
