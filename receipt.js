@@ -65,7 +65,6 @@
     var paper = el("div", "arr-paper");
     
     var head = el("div", "arr-head");
-    // আপনার লোগো এখানে যুক্ত করা হলো (রিপোজিটরিতে logo.jpg থাকলে দেখাবে)
     head.innerHTML = `<img src="logo.jpg" class="arr-logo" onerror="this.style.display='none'">`;
     head.appendChild(el("div", "arr-title", "AR-RABETA"));
     head.appendChild(el("div", null, t.title));
@@ -96,10 +95,13 @@
     
     // বিনিয়োগকারীর তথ্য (যদি থাকে)
     if (r.investor_name) {
-      addRow(tb, "Investor Name", r.investor_name);
-      addRow(tb, "Investor Phone", r.investor_phone);
-      addRow(tb, "Investor Address", r.investor_address);
-      addRow(tb, "Investor NID", r.investor_nid);
+      // যদি বিনিয়োগ ফেরত হয়, তবে "Receiver Name" দেখাবে, অন্যথায় "Investor Name"
+      var nameLabel = (r.type === "investment_return") ? "Receiver Name" : "Investor Name";
+      addRow(tb, nameLabel, r.investor_name);
+      
+      if (r.investor_phone) addRow(tb, "Phone", r.investor_phone);
+      if (r.investor_address) addRow(tb, "Address", r.investor_address);
+      if (r.investor_nid) addRow(tb, "NID", r.investor_nid);
     }
     
     // INV নম্বর
@@ -125,7 +127,9 @@
       addRow(tb, "Month", monthFmt.format(new Date(r.month + "T00:00:00Z")));
     }
     
-    addRow(tb, "Category", r.category);
+    if (r.category !== "Investment Return") {
+      addRow(tb, "Category", r.category);
+    }
     addRow(tb, "Description", r.description);
     addRow(tb, "Reference", r.reference);
     table.appendChild(tb);
