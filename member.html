@@ -60,6 +60,7 @@ input[type=text], input[type=tel], input[type=password] {
 .hello { margin: 6px 0 18px; }
 .hello h2 { font-size: 1.3rem; }
 .hello p { margin: 2px 0 0; color: var(--muted); }
+.welcome-msg { color: #0E6B52; font-weight: bold; font-size: 0.95rem; margin-top: 4px; }
 .page-title { font-size: 1.35rem; margin: 4px 0 16px; }
 
 /* home menu */
@@ -120,6 +121,7 @@ input[type=text], input[type=tel], input[type=password] {
   <section id="v-home" aria-label="মেনু">
     <div class="hello">
       <h2 id="hName"></h2>
+      <p class="welcome-msg">Welcome! An honourable member of AR-RABETA</p>
       <p id="hSince"></p>
     </div>
     <ul class="menu" id="menu"></ul>
@@ -203,7 +205,6 @@ function el(tag, cls, text) {
   return e;
 }
 
-/* ---------- navigation (hash = page name only) ---------- */
 function route() {
   if (!token) return;
   var name = (location.hash || "").replace("#", "");
@@ -213,7 +214,6 @@ function route() {
 }
 window.addEventListener("hashchange", route);
 
-/* ---------- login / logout ---------- */
 function logout(msg) {
   var t = token;
   token = null;
@@ -262,7 +262,6 @@ $("loginForm").addEventListener("submit", async function (e) {
   }
 });
 
-/* ---------- data ---------- */
 async function getJson(path) {
   var r = await fetch(API + path, { headers: { "x-member-token": token } });
   var d = {};
@@ -324,7 +323,6 @@ function render(me, soc) {
     menu.appendChild(li);
   });
 
-  // আমার হিসাব
   $("mSavings").textContent = taka(me.member.monthly_savings);
   $("mTotal").textContent = taka(me.total_deposit);
   fillList("depList", me.deposits, function (x) {
@@ -339,7 +337,6 @@ function render(me, soc) {
     return li;
   }, "এখনো কোনো জমা রেকর্ড হয়নি।");
 
-  // সোসাইটির মোট হিসাব
   $("socDep").textContent = taka(soc.totals.deposits);
   $("socExp").textContent = taka(soc.totals.expenses);
   $("socInv").textContent = taka(soc.totals.investments);
